@@ -12,11 +12,11 @@
         </repository>
     </repositories>
     <dependencies>
-        <dependency>
-            <groupId>com.github.luishonshon</groupId>
-            <artifactId>SistemaCISCODominio</artifactId>
-            <version>main</version>
-        </dependency>
+       <dependency>
+	    <groupId>com.github.luishonshon</groupId>
+	    <artifactId>SistemaCISCODominio</artifactId>
+	    <version>e6f969c411</version>
+	</dependency>
     </dependencies>
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>

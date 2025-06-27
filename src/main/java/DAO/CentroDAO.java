@@ -105,12 +105,34 @@ public class CentroDAO implements ICentroDAO{
 
     @Override
     public CentroRegla asignarRegla(AsignarReglaCentroDTO regla) {
-        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
+        EntityManagerFactory fabrica = Persistence.createEntityManagerFactory("ConexionJPA");
+        EntityManager entityManager = fabrica.createEntityManager();
+        CentroRegla nuevaAsignacion = new CentroRegla();
+        nuevaAsignacion.setCentro(regla.getCentro());
+        nuevaAsignacion.setRegla(regla.getRegla());
+        entityManager.getTransaction().begin();
+        entityManager.persist(regla);
+        entityManager.getTransaction().commit();
+        entityManager.close();
+        fabrica.close();
+        return nuevaAsignacion;
     }
 
     @Override
     public List<Computadora> computadorasCentro(Centro centro) {
-        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
+        EntityManagerFactory fabrica = Persistence.createEntityManagerFactory("ConexionJPA");
+        EntityManager entityManager = fabrica.createEntityManager();
+        CriteriaBuilder criteriaBuilder = entityManager.getCriteriaBuilder();
+        CriteriaQuery<Computadora> criteriaQuery = criteriaBuilder.createQuery(Computadora.class);
+        
+        Root<Computadora> root = criteriaQuery.from(Computadora.class);
+        criteriaQuery.select(root)
+                   .where(criteriaBuilder.equal(root.get("idCentro"), centro.getNombre()));
+        
+        List<Computadora> computadoras = entityManager.createQuery(criteriaQuery).getResultList();
+        entityManager.close();
+        fabrica.close();
+        return computadoras;
     }
     
 }

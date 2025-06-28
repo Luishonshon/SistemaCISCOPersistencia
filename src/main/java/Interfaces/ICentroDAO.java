@@ -8,7 +8,6 @@ import DTO.centro.AgregarCentroDTO;
 import DTO.centro.AgregarReglaDTO;
 import DTO.centro.AsignarReglaCentroDTO;
 import Dominio.Centro;
-import Dominio.CentroRegla;
 import Dominio.Computadora;
 import Dominio.Regla;
 import java.util.List;
@@ -23,7 +22,6 @@ public interface ICentroDAO {
     public Centro BuscarCentroID(Long Id);
     public Regla agregarRegla(AgregarReglaDTO nuevaRegla);
     public Regla BuscarReglaId(Long Id);
-    public CentroRegla asignarRegla(AsignarReglaCentroDTO regla);
     public List<Computadora> computadorasCentro(Centro centro);
 
 }

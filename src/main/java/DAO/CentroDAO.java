@@ -8,7 +8,6 @@ import DTO.centro.AgregarCentroDTO;
 import DTO.centro.AgregarReglaDTO;
 import DTO.centro.AsignarReglaCentroDTO;
 import Dominio.Centro;
-import Dominio.CentroRegla;
 import Dominio.Computadora;
 import Dominio.Regla;
 import Interfaces.ICentroDAO;
@@ -103,20 +102,6 @@ public class CentroDAO implements ICentroDAO{
         return regla;
     }
 
-    @Override
-    public CentroRegla asignarRegla(AsignarReglaCentroDTO regla) {
-        EntityManagerFactory fabrica = Persistence.createEntityManagerFactory("ConexionJPA");
-        EntityManager entityManager = fabrica.createEntityManager();
-        CentroRegla nuevaAsignacion = new CentroRegla();
-        nuevaAsignacion.setCentro(regla.getCentro());
-        nuevaAsignacion.setRegla(regla.getRegla());
-        entityManager.getTransaction().begin();
-        entityManager.persist(regla);
-        entityManager.getTransaction().commit();
-        entityManager.close();
-        fabrica.close();
-        return nuevaAsignacion;
-    }
 
     @Override
     public List<Computadora> computadorasCentro(Centro centro) {

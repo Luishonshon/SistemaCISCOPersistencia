@@ -15,7 +15,7 @@
 	    <dependency>
 	    <groupId>com.github.luishonshon</groupId>
 	    <artifactId>SistemaCISCODominio</artifactId>
-	    <version>3b4931ec3b</version>
+	    <version>a97dc4d467</version>
 	</dependency>
             <dependency>
         <groupId>mysql</groupId>

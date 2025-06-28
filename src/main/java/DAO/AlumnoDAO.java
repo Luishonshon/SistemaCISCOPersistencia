@@ -196,5 +196,20 @@ public class AlumnoDAO implements IAlumnoDAO {
         fabrica.close();
         return carreras;
     }
+
+    @Override
+    public Bloqueo desbloqueAlumno(Alumno alumno) {
+        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
+    }
+
+    @Override
+    public Bloqueo ultimoBloqueoAlumno(Alumno alumno) {
+        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
+    }
+
+    @Override
+    public List<Alumno> ObtenerAlumnosBloqueados() {
+        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
+    }
     
 }

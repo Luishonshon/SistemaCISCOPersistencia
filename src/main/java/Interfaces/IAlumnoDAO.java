@@ -24,10 +24,13 @@ public interface IAlumnoDAO {
     public Alumno agregarAlumno(AgregarAlumnoDTO alumnoNuevo);
     public Alumno iniciarSesion(ConfirmarAlumnoDTO alumnoSesion);
     public Bloqueo bloquearAlumno(BloquearAlumnoDTO nuevoBloqueo);
+    public Bloqueo desbloqueAlumno(Alumno alumno);
+    public Bloqueo ultimoBloqueoAlumno(Alumno alumno);
     public List<Bloqueo> Bloqueos();
     public Bloqueo BuscarBloqueoId(Long id);
     public Alumno Buscar(BuscarAlumnoDTO alumno);
     public List<Alumno> BuscarAlumnos();
+    public List<Alumno> ObtenerAlumnosBloqueados();
     public List<Carrera>  ListaCarreras();
 
 }

@@ -67,87 +67,41 @@ public class ComputadoraDAO implements IComputadoraDAO {
         return computadora;
     }
 
-    @Override
-    public Computadora actualizarEstado(ActualizarEstadoComputadoraDTO actualizarEstado) {
-        EntityManagerFactory fabrica = Persistence.createEntityManagerFactory("ConexionJPA");
-        EntityManager entityManager = fabrica.createEntityManager();
-        try {
-            entityManager.getTransaction().begin();
-
-            Computadora pc = entityManager.find(Computadora.class, actualizarEstado.getIdComputadora());
-            if (pc == null) {
-                throw new IllegalArgumentException("Computadora no encontrada");
-            }
-
-            if ("ocupado".equalsIgnoreCase(actualizarEstado.getEstadoNuevo())) {
-                pc.setEstado(false);
-            } else if ("desocupado".equalsIgnoreCase(actualizarEstado.getEstadoNuevo())) {
-                pc.setEstado(true);
-            } else {
-                throw new IllegalArgumentException("Estado no válido. Use 'ocupado' o 'desocupado'");
-            }
-
-            entityManager.getTransaction().commit();
-            return pc;
-        } catch (Exception e) {
-            if (entityManager.getTransaction().isActive()) {
-                entityManager.getTransaction().rollback();
-            }
-            throw e;
-        } finally {
-            entityManager.close();
-            fabrica.close();
-        }
-    }
-
-        @Override
+   @Override
     public Reservacion reservarComputadora(GuardarReservaDTO nuevaReservacion) {
         EntityManagerFactory fabrica = Persistence.createEntityManagerFactory("ConexionJPA");
         EntityManager entityManager = fabrica.createEntityManager();
-        try {
-            entityManager.getTransaction().begin();
-            Alumno alumno = entityManager.find(Alumno.class, nuevaReservacion.getIdAlumno());
-            Computadora computadora = entityManager.find(Computadora.class, nuevaReservacion.getIdComputadora());
 
-            if (alumno == null || computadora == null) {
-                throw new IllegalArgumentException("Alumno o Computadora no encontrados");
-            }
-            Query query = entityManager.createQuery(
-                "SELECT COUNT(r) FROM Reservacion r WHERE " +
-                "r.computadora = :computadora AND " +
-                "r.fechaInicio < :fechaFin AND " +
-                "r.fechaFin > :fechaInicio")
-                .setParameter("computadora", computadora)
-                .setParameter("fechaInicio", nuevaReservacion.getFechaHoraInicio())
-                .setParameter("fechaFin", nuevaReservacion.getFechaHoraFin());
+        Alumno alumno = entityManager.find(Alumno.class, nuevaReservacion.getIdAlumno());
+        Computadora computadora = entityManager.find(Computadora.class, nuevaReservacion.getIdComputadora());
 
-            Long count = (Long) query.getSingleResult();
+        // Verificar disponibilidad
+        Long count = entityManager.createQuery(
+            "SELECT COUNT(r) FROM Reservacion r WHERE " +
+            "r.computadora = :comp AND " +
+            "r.fechaInicio < :fin AND " +
+            "r.fechaFin > :inicio", Long.class)
+            .setParameter("comp", computadora)
+            .setParameter("inicio", nuevaReservacion.getFechaHoraInicio())
+            .setParameter("fin", nuevaReservacion.getFechaHoraFin())
+            .getSingleResult();
 
-            if (count > 0) {
-                throw new IllegalStateException("La computadora ya está reservada en ese horario");
-            }
-            Reservacion reservacion = new Reservacion();
-            reservacion.setFechaInicio(nuevaReservacion.getFechaHoraInicio());
-            reservacion.setFechaFin(nuevaReservacion.getFechaHoraFin());
-            reservacion.setAlumno(alumno);
-            reservacion.setComputadora(computadora);
+        Reservacion reservacion = new Reservacion();
+        reservacion.setFechaInicio(nuevaReservacion.getFechaHoraInicio());
+        reservacion.setFechaFin(nuevaReservacion.getFechaHoraFin());
+        reservacion.setAlumno(alumno);
+        reservacion.setComputadora(computadora);
 
-            // Actualizar estado
-            computadora.setEstado(false);
-            entityManager.merge(computadora);
-            entityManager.persist(reservacion);
+        computadora.setEstado(false);
 
-            entityManager.getTransaction().commit();
-            return reservacion;
-        } catch (Exception e) {
-            if (entityManager.getTransaction().isActive()) {
-                entityManager.getTransaction().rollback();
-            }
-            throw e;
-        } finally {
-            entityManager.close();
-            fabrica.close();
-        }
+        entityManager.getTransaction().begin();
+        entityManager.persist(reservacion);
+        entityManager.merge(computadora);
+        entityManager.getTransaction().commit();
+
+        entityManager.close();
+        fabrica.close();
+        return reservacion;
     }
 
     @Override
@@ -243,6 +197,25 @@ public class ComputadoraDAO implements IComputadoraDAO {
         entityManager.close();
         fabrica.close();
         return computadora;  
+    }
+
+    @Override
+    public Computadora actualizarEstado(ActualizarEstadoComputadoraDTO actualizarEstado) {
+        EntityManagerFactory fabrica = Persistence.createEntityManagerFactory("ConexionJPA");
+        EntityManager entityManager = fabrica.createEntityManager();
+
+        Computadora pc = entityManager.find(Computadora.class, actualizarEstado.getIdComputadora());
+
+        if ("ocupado".equalsIgnoreCase(actualizarEstado.getEstadoNuevo())) {
+            pc.setEstado(false);
+        } else if ("desocupado".equalsIgnoreCase(actualizarEstado.getEstadoNuevo())) {
+            pc.setEstado(true);
+        }
+
+        Computadora updated = entityManager.merge(pc);
+        entityManager.close();
+        fabrica.close();
+        return updated;
     }
     
 }

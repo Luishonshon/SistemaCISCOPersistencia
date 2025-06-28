@@ -69,7 +69,7 @@ public class AlumnoDAO implements IAlumnoDAO {
         alumno.setNombre(alumnoNuevo.getNombre());
         alumno.setApellidoPaterno(alumnoNuevo.getApellidoPaterno());
         alumno.setApellidoMaterno(alumnoNuevo.getApellidoMaterno());
-        alumno.setContraseña(alumnoNuevo.getContraseña());
+        alumno.setContrasenia(alumnoNuevo.getContraseña());
         alumno.setEstado(true);
         alumno.setCarrera(alumnoNuevo.getCarrera());
         entityManager.getTransaction().begin();

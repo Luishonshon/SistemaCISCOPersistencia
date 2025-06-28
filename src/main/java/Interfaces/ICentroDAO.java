@@ -6,7 +6,6 @@ package Interfaces;
 
 import DTO.centro.AgregarCentroDTO;
 import DTO.centro.AgregarReglaDTO;
-import DTO.centro.AsignarReglaCentroDTO;
 import Dominio.Centro;
 import Dominio.Computadora;
 import Dominio.Regla;

@@ -6,7 +6,6 @@ package DAO;
 
 import DTO.centro.AgregarCentroDTO;
 import DTO.centro.AgregarReglaDTO;
-import DTO.centro.AsignarReglaCentroDTO;
 import Dominio.Centro;
 import Dominio.Computadora;
 import Dominio.Regla;
@@ -32,7 +31,7 @@ public class CentroDAO implements ICentroDAO{
         EntityManager entityManager = fabrica.createEntityManager();
         Centro centro = new Centro();
         centro.setNombre(nuevoCentro.getNombre());
-        centro.setContraseña(nuevoCentro.getContraseña());
+        centro.setContrasenia(nuevoCentro.getContraseña());
         centro.setFechaFin(nuevoCentro.getFechaFin());
         centro.setFechaInicio(nuevoCentro.getFechaInicio());
         entityManager.getTransaction().begin();

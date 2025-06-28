@@ -151,5 +151,20 @@ public class ComputadoraDAO implements IComputadoraDAO {
         fabrica.close();
         return instalacion;
     }
+
+    @Override
+    public Computadora buscarComputadoraIp(String ip) {
+        EntityManagerFactory fabrica = Persistence.createEntityManagerFactory("ConexionJPA");
+        EntityManager entityManager = fabrica.createEntityManager();
+        CriteriaBuilder criteriaBuilder = entityManager.getCriteriaBuilder();
+        CriteriaQuery<Computadora> criteriaQuery = criteriaBuilder.createQuery(Computadora.class);
+        Root<Computadora> root = criteriaQuery.from(Computadora.class);
+        criteriaQuery.select(root)
+                     .where(criteriaBuilder.equal(root.get("ip"), ip));
+        TypedQuery<Computadora> typedQuery = entityManager.createQuery(criteriaQuery);
+        Computadora computadora = typedQuery.getSingleResult();
+        entityManager.close();
+        fabrica.close();
+        return computadora;    }
     
 }

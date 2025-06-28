@@ -22,6 +22,7 @@ import java.util.List;
 public interface IComputadoraDAO {
     public Computadora agregarComputadora(AgregarComputadoraDTO nuevacomputadora);
     public Computadora buscarComputadoraId(Long Id);
+    public Computadora buscarComputadoraIp(String ip);
     public Computadora actualizarEstado(ActualizarEstadoComputadoraDTO actualizarEstado);
     public Reservacion reservarComputadora(GuardarReservaDTO nuevaReservacion);
     public Reservacion buscarReservacionId(Long Id);

@@ -16,6 +16,7 @@ import Dominio.Regla;
 import Dominio.Reservacion;
 import Dominio.Software;
 import Interfaces.IComputadoraDAO;
+import java.time.LocalDateTime;
 import java.util.List;
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
@@ -23,6 +24,7 @@ import javax.persistence.Persistence;
 import javax.persistence.TypedQuery;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
+import javax.persistence.criteria.Expression;
 import javax.persistence.criteria.Root;
 
 /**
@@ -88,18 +90,18 @@ public class ComputadoraDAO implements IComputadoraDAO {
         CriteriaBuilder cb = entityManager.getCriteriaBuilder();
         Alumno alumno = entityManager.find(Alumno.class, nuevaReservacion.getIdAlumno());
         Computadora computadora = entityManager.find(Computadora.class, nuevaReservacion.getIdComputadora());
-        CriteriaQuery<Long> disponibilidadQuery = cb.createQuery(Long.class);
-        Root<Reservacion> reserva = disponibilidadQuery.from(Reservacion.class);
-        disponibilidadQuery.select(cb.count(reserva))
-            .where(cb.and(
-                cb.equal(reserva.get("computadora"), computadora),
-                cb.lessThan(reserva.get("fechaInicio"), nuevaReservacion.getFechaHoraFin()),
-                cb.greaterThan(reserva.get("fechaFin"), nuevaReservacion.getFechaHoraInicio())
-            ));
-        Long reservasSolapadas = entityManager.createQuery(disponibilidadQuery).getSingleResult();
-        if (reservasSolapadas > 0) {
-            throw new IllegalStateException("La computadora ya está reservada en ese horario");
-        }
+        
+        CriteriaQuery<Long> cq = cb.createQuery(Long.class);
+        Root<Reservacion> reserva = cq.from(Reservacion.class);
+        Expression<LocalDateTime> fechaInicioParam = cb.literal(nuevaReservacion.getFechaHoraInicio());
+        Expression<LocalDateTime> fechaFinParam = cb.literal(nuevaReservacion.getFechaHoraFin());
+
+        cq.select(cb.count(reserva))
+          .where(cb.and(
+              cb.equal(reserva.get("computadora"), computadora),
+              cb.lessThan(reserva.get("fechaInicio"), fechaFinParam),
+              cb.greaterThan(reserva.get("fechaFin"), fechaInicioParam)
+          ));
         Reservacion reservacion = new Reservacion();
         reservacion.setFechaInicio(nuevaReservacion.getFechaHoraInicio());
         reservacion.setFechaFin(nuevaReservacion.getFechaHoraFin());
@@ -203,6 +205,7 @@ public class ComputadoraDAO implements IComputadoraDAO {
         Computadora computadora = typedQuery.getSingleResult();
         entityManager.close();
         fabrica.close();
-        return computadora;    }
+        return computadora;  
+    }
     
 }

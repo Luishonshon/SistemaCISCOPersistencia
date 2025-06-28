@@ -14,6 +14,7 @@ import Dominio.Bloqueo;
 import Dominio.Carrera;
 import Dominio.Centro;
 import Interfaces.IAlumnoDAO;
+import java.sql.Date;
 import java.time.LocalDate;
 import java.util.List;
 import javax.persistence.EntityManager;
@@ -24,6 +25,7 @@ import javax.persistence.TypedQuery;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.CriteriaUpdate;
+import javax.persistence.criteria.Expression;
 import javax.persistence.criteria.Join;
 import javax.persistence.criteria.JoinType;
 import javax.persistence.criteria.Predicate;
@@ -251,23 +253,31 @@ public class AlumnoDAO implements IAlumnoDAO {
 
     @Override
     public List<Alumno> ObtenerAlumnosBloqueados() {
-         EntityManagerFactory fabrica = Persistence.createEntityManagerFactory("ConexionJPA");
+        EntityManagerFactory fabrica = Persistence.createEntityManagerFactory("ConexionJPA");
         EntityManager entityManager = fabrica.createEntityManager();
-        CriteriaBuilder cb = entityManager.getCriteriaBuilder();
-        CriteriaQuery<Alumno> cq = cb.createQuery(Alumno.class);
-        Root<Alumno> alumno = cq.from(Alumno.class);
-        Join<Alumno, Bloqueo> bloqueo = alumno.join("bloqueos", JoinType.INNER);
+        try {
+            CriteriaBuilder cb = entityManager.getCriteriaBuilder();
+            CriteriaQuery<Alumno> cq = cb.createQuery(Alumno.class);
+            Root<Alumno> alumno = cq.from(Alumno.class);
+            Join<Alumno, Bloqueo> bloqueo = alumno.join("bloqueos", JoinType.INNER);
 
-        Predicate bloqueoActivo = cb.or(
-            cb.isNull(bloqueo.get("fechaDesbloqueo")),
-            cb.greaterThan(bloqueo.get("fechaDesbloqueo"), cb.currentDate())
-        );
+            // Corrección clave: convertir tipos adecuadamente
+            Expression<Date> fechaActual = cb.currentDate();
+            Expression<Date> fechaDesbloqueo = bloqueo.get("fechaDesbloqueo").as(Date.class);
 
-        cq.select(alumno)
-          .where(bloqueoActivo)
-          .distinct(true); 
+            Predicate bloqueoActivo = cb.or(
+                cb.isNull(bloqueo.get("fechaDesbloqueo")),
+                cb.greaterThan(fechaDesbloqueo, fechaActual)
+            );
 
-        return entityManager.createQuery(cq).getResultList();
+            cq.select(alumno)
+              .where(bloqueoActivo)
+              .distinct(true);
+
+            return entityManager.createQuery(cq).getResultList();
+        } finally {
+            entityManager.close();
+            fabrica.close();
+        }
     }
-    
 }

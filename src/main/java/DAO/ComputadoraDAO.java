@@ -9,6 +9,7 @@ import DTO.computadoras.AgregarComputadoraDTO;
 import DTO.reservas.GuardarReservaDTO;
 import DTO.software.AgregarSoftwareDTO;
 import DTO.software.InstalarSoftwareDTO;
+import Dominio.Alumno;
 import Dominio.Computadora;
 import Dominio.Instalacion;
 import Dominio.Regla;
@@ -65,12 +66,49 @@ public class ComputadoraDAO implements IComputadoraDAO {
 
     @Override
     public Computadora actualizarEstado(ActualizarEstadoComputadoraDTO actualizarEstado) {
-        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
+         EntityManagerFactory fabrica = Persistence.createEntityManagerFactory("ConexionJPA");
+        EntityManager entityManager = fabrica.createEntityManager();
+        CriteriaBuilder cb = entityManager.getCriteriaBuilder();
+        CriteriaQuery<Computadora> query = cb.createQuery(Computadora.class);
+        Root<Computadora> computadora = query.from(Computadora.class);
+        query.where(cb.equal(computadora.get("id"), actualizarEstado.getIdComputadora()));
+        Computadora pc = entityManager.createQuery(query).getSingleResult();
+        if ("ocupado".equalsIgnoreCase(actualizarEstado.getEstadoNuevo())) {
+            pc.setEstado(false);
+        } else if ("desocupado".equalsIgnoreCase(actualizarEstado.getEstadoNuevo())) {
+            pc.setEstado(true);
+        } 
+        return entityManager.merge(pc);
     }
 
     @Override
     public Reservacion reservarComputadora(GuardarReservaDTO nuevaReservacion) {
-        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
+         EntityManagerFactory fabrica = Persistence.createEntityManagerFactory("ConexionJPA");
+        EntityManager entityManager = fabrica.createEntityManager();
+        CriteriaBuilder cb = entityManager.getCriteriaBuilder();
+        Alumno alumno = entityManager.find(Alumno.class, nuevaReservacion.getIdAlumno());
+        Computadora computadora = entityManager.find(Computadora.class, nuevaReservacion.getIdComputadora());
+        CriteriaQuery<Long> disponibilidadQuery = cb.createQuery(Long.class);
+        Root<Reservacion> reserva = disponibilidadQuery.from(Reservacion.class);
+        disponibilidadQuery.select(cb.count(reserva))
+            .where(cb.and(
+                cb.equal(reserva.get("computadora"), computadora),
+                cb.lessThan(reserva.get("fechaInicio"), nuevaReservacion.getFechaHoraFin()),
+                cb.greaterThan(reserva.get("fechaFin"), nuevaReservacion.getFechaHoraInicio())
+            ));
+        Long reservasSolapadas = entityManager.createQuery(disponibilidadQuery).getSingleResult();
+        if (reservasSolapadas > 0) {
+            throw new IllegalStateException("La computadora ya está reservada en ese horario");
+        }
+        Reservacion reservacion = new Reservacion();
+        reservacion.setFechaInicio(nuevaReservacion.getFechaHoraInicio());
+        reservacion.setFechaFin(nuevaReservacion.getFechaHoraFin());
+        reservacion.setAlumno(alumno);
+        reservacion.setComputadora(computadora);
+        computadora.setEstado(false);
+        entityManager.merge(computadora);
+        entityManager.persist(reservacion);
+        return reservacion;
     }
 
     @Override

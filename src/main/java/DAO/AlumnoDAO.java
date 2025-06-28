@@ -230,17 +230,23 @@ public class AlumnoDAO implements IAlumnoDAO {
     
     @Override
     public Bloqueo ultimoBloqueoAlumno(Alumno alumno) {
-        EntityManager entityManager = null;
         EntityManagerFactory fabrica = Persistence.createEntityManagerFactory("ConexionJPA");
-        CriteriaBuilder cb = entityManager.getCriteriaBuilder();
-        CriteriaQuery<Bloqueo> cq = cb.createQuery(Bloqueo.class);
-        Root<Bloqueo> bloqueo = cq.from(Bloqueo.class);
-        cq.where(cb.equal(bloqueo.get("alumno"), alumno))
-          .orderBy(cb.desc(bloqueo.get("fechaBloqueo"))); 
+        EntityManager entityManager = fabrica.createEntityManager();
+        try {
+            CriteriaBuilder cb = entityManager.getCriteriaBuilder();
+            CriteriaQuery<Bloqueo> cq = cb.createQuery(Bloqueo.class);
+            Root<Bloqueo> bloqueo = cq.from(Bloqueo.class);
+
+            cq.where(cb.equal(bloqueo.get("alumno"), alumno))
+              .orderBy(cb.desc(bloqueo.get("fechaBloqueo"))); 
+
             return entityManager.createQuery(cq)
-                              .setMaxResults(1) 
+                              .setMaxResults(1)
                               .getSingleResult();
-   
+        } finally {
+            entityManager.close();
+            fabrica.close();
+        }
     }
 
     @Override

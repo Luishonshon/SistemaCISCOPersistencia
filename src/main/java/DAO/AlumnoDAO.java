@@ -14,13 +14,19 @@ import Dominio.Bloqueo;
 import Dominio.Carrera;
 import Dominio.Centro;
 import Interfaces.IAlumnoDAO;
+import java.time.LocalDate;
 import java.util.List;
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
+import javax.persistence.NoResultException;
 import javax.persistence.Persistence;
 import javax.persistence.TypedQuery;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
+import javax.persistence.criteria.CriteriaUpdate;
+import javax.persistence.criteria.Join;
+import javax.persistence.criteria.JoinType;
+import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 
 /**
@@ -199,17 +205,63 @@ public class AlumnoDAO implements IAlumnoDAO {
 
     @Override
     public Bloqueo desbloqueAlumno(Alumno alumno) {
-        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
-    }
-
+        EntityManager entityManager = null;
+        EntityManagerFactory fabrica = Persistence.createEntityManagerFactory("ConexionJPA");
+        entityManager = fabrica.createEntityManager();
+        entityManager.getTransaction().begin();
+        CriteriaBuilder cb = entityManager.getCriteriaBuilder();
+        CriteriaQuery<Bloqueo> cq = cb.createQuery(Bloqueo.class);
+        Root<Bloqueo> bloqueo = cq.from(Bloqueo.class);
+        cq.where(
+            cb.and(
+                cb.equal(bloqueo.get("alumno"), alumno),
+                cb.isNull(bloqueo.get("fechaDesbloqueo"))
+            )
+        );
+        Bloqueo bloqueoActivo = entityManager.createQuery(cq).getSingleResult();
+        bloqueoActivo.setFechaDesbloqueo(LocalDate.now());
+        entityManager.merge(bloqueoActivo);
+        entityManager.getTransaction().commit();
+        return bloqueoActivo;
+        
+        }
+        
+    
+    
     @Override
     public Bloqueo ultimoBloqueoAlumno(Alumno alumno) {
-        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
+        EntityManager entityManager = null;
+        EntityManagerFactory fabrica = Persistence.createEntityManagerFactory("ConexionJPA");
+        CriteriaBuilder cb = entityManager.getCriteriaBuilder();
+        CriteriaQuery<Bloqueo> cq = cb.createQuery(Bloqueo.class);
+        Root<Bloqueo> bloqueo = cq.from(Bloqueo.class);
+        cq.where(cb.equal(bloqueo.get("alumno"), alumno))
+          .orderBy(cb.desc(bloqueo.get("fechaBloqueo"))); 
+            return entityManager.createQuery(cq)
+                              .setMaxResults(1) 
+                              .getSingleResult();
+   
     }
 
     @Override
     public List<Alumno> ObtenerAlumnosBloqueados() {
-        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
+         EntityManagerFactory fabrica = Persistence.createEntityManagerFactory("ConexionJPA");
+        EntityManager entityManager = fabrica.createEntityManager();
+        CriteriaBuilder cb = entityManager.getCriteriaBuilder();
+        CriteriaQuery<Alumno> cq = cb.createQuery(Alumno.class);
+        Root<Alumno> alumno = cq.from(Alumno.class);
+        Join<Alumno, Bloqueo> bloqueo = alumno.join("bloqueos", JoinType.INNER);
+
+        Predicate bloqueoActivo = cb.or(
+            cb.isNull(bloqueo.get("fechaDesbloqueo")),
+            cb.greaterThan(bloqueo.get("fechaDesbloqueo"), cb.currentDate())
+        );
+
+        cq.select(alumno)
+          .where(bloqueoActivo)
+          .distinct(true); 
+
+        return entityManager.createQuery(cq).getResultList();
     }
     
 }

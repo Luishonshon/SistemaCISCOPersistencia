@@ -8,6 +8,7 @@ import DAO.CentroDAO;
 import DAO.ComputadoraDAO;
 import DTO.alumnos.AgregarAlumnoDTO;
 import DTO.alumnos.AgregarCarreraDTO;
+import DTO.alumnos.BloquearAlumnoDTO;
 import DTO.centro.AgregarCentroDTO;
 import DTO.centro.AgregarReglaDTO;
 import DTO.computadoras.AgregarComputadoraDTO;
@@ -15,6 +16,7 @@ import DTO.plantel.AgregarPlantelDTO;
 import DTO.software.AgregarSoftwareDTO;
 import DTO.software.InstalarSoftwareDTO;
 import Dominio.Alumno;
+import Dominio.Bloqueo;
 import Dominio.Carrera;
 import Dominio.Centro;
 import Dominio.Computadora;
@@ -29,6 +31,7 @@ import java.io.FileNotFoundException;
 import java.io.PrintStream;
 import java.time.LocalDate;
 import java.time.LocalTime;
+import java.util.List;
 /**
  *
  * @author luishonshon
@@ -559,7 +562,35 @@ public class SistemaCISCOPersistencia {
         Instalacion instalacion10_3 = computadoraDAO.InstalarSoftware(
             new InstalarSoftwareDTO("3.1", computadora10, software3)
         );
-
+        
+        
+        Bloqueo bloqueonuevo = 
+                alumnoDAO.bloquearAlumno(
+                new BloquearAlumnoDTO("por pendejo", 
+                        LocalDate.now(), 
+                        alumno)
+                );
+        
+        Bloqueo bloqueonuevo2 = 
+                alumnoDAO.bloquearAlumno(
+                new BloquearAlumnoDTO("por hackear al luis", 
+                        LocalDate.now(), 
+                        alumno3)
+                );
+        
+        Carrera carreraSeleccionada = alumnoDAO.buscarCarreraID(2l);
+        System.out.println(carreraSeleccionada.getNombre());
+        
+        List<Carrera> carreras = alumnoDAO.ListaCarreras();
+          // Imprimir nombres de carreras
+        System.out.println("=== Listado de Carreras ===");
+        for(Carrera carrera : carreras) {
+            System.out.println(carrera.getNombre()); // Asume que la entidad Carrera tiene un campo 'nombre'
+        }
+        
+        
+        
+        
     }
 
 }

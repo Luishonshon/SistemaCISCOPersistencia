@@ -15,7 +15,7 @@
 	    <dependency>
 	    <groupId>com.github.luishonshon</groupId>
 	    <artifactId>SistemaCISCODominio</artifactId>
-	    <version>a97dc4d467</version>
+	    <version>89b4e27f21</version>
 	</dependency>
             <dependency>
         <groupId>mysql</groupId>
@@ -26,7 +26,7 @@
     </dependencies>
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <maven.compiler.release>24</maven.compiler.release>
+        <maven.compiler.release>23</maven.compiler.release>
         <exec.mainClass>com.mycompany.sistemaciscopersistencia.SistemaCISCOPersistencia</exec.mainClass>
     </properties>
 </project>

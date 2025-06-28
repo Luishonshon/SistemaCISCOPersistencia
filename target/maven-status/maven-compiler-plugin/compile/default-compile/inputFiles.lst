@@ -2,6 +2,8 @@ C:\Users\santi\Documents\GitHub\SistemaCISCOPersistencia\src\main\java\com\mycom
 C:\Users\santi\Documents\GitHub\SistemaCISCOPersistencia\src\main\java\DAO\AlumnoDAO.java
 C:\Users\santi\Documents\GitHub\SistemaCISCOPersistencia\src\main\java\DAO\CentroDAO.java
 C:\Users\santi\Documents\GitHub\SistemaCISCOPersistencia\src\main\java\DAO\ComputadoraDAO.java
+C:\Users\santi\Documents\GitHub\SistemaCISCOPersistencia\src\main\java\DAO\ReporteDAO.java
 C:\Users\santi\Documents\GitHub\SistemaCISCOPersistencia\src\main\java\Interfaces\IAlumnoDAO.java
 C:\Users\santi\Documents\GitHub\SistemaCISCOPersistencia\src\main\java\Interfaces\ICentroDAO.java
 C:\Users\santi\Documents\GitHub\SistemaCISCOPersistencia\src\main\java\Interfaces\IComputadoraDAO.java
+C:\Users\santi\Documents\GitHub\SistemaCISCOPersistencia\src\main\java\Interfaces\IReporteDAO.java

@@ -6,8 +6,10 @@ package DAO;
 
 import DTO.centro.AgregarCentroDTO;
 import DTO.centro.AgregarReglaDTO;
+import DTO.plantel.AgregarPlantelDTO;
 import Dominio.Centro;
 import Dominio.Computadora;
+import Dominio.Plantel;
 import Dominio.Regla;
 import Interfaces.ICentroDAO;
 import java.util.List;
@@ -32,8 +34,9 @@ public class CentroDAO implements ICentroDAO{
         Centro centro = new Centro();
         centro.setNombre(nuevoCentro.getNombre());
         centro.setContrasenia(nuevoCentro.getContraseña());
+        centro.setTiempoInicio(nuevoCentro.getTiempoInicio());
         centro.setFechaFin(nuevoCentro.getFechaFin());
-        centro.setFechaInicio(nuevoCentro.getFechaInicio());
+        centro.setPlantel(nuevoCentro.getPlantel());
         entityManager.getTransaction().begin();
         entityManager.persist(centro);
         entityManager.getTransaction().commit();
@@ -111,12 +114,71 @@ public class CentroDAO implements ICentroDAO{
         
         Root<Computadora> root = criteriaQuery.from(Computadora.class);
         criteriaQuery.select(root)
-                   .where(criteriaBuilder.equal(root.get("idCentro"), centro.getNombre()));
+                   .where(criteriaBuilder.equal(root.get("idCentro"), centro.getId()));
         
         List<Computadora> computadoras = entityManager.createQuery(criteriaQuery).getResultList();
         entityManager.close();
         fabrica.close();
         return computadoras;
+    }
+
+    @Override
+    public Plantel agregarPlantel(AgregarPlantelDTO agregarPlantelDTO) {
+        EntityManagerFactory fabrica = Persistence.createEntityManagerFactory("ConexionJPA");
+        EntityManager entityManager = fabrica.createEntityManager();
+        Plantel plantel = new Plantel();
+        plantel.setNombre(agregarPlantelDTO.getNombre());
+        entityManager.getTransaction().begin();
+        entityManager.persist(plantel);
+        entityManager.getTransaction().commit();
+        entityManager.close();
+        fabrica.close();
+        return plantel;
+    }
+
+    @Override
+    public List<Plantel> planteles() {
+        EntityManagerFactory fabrica = Persistence.createEntityManagerFactory("ConexionJPA");
+        EntityManager entityManager = fabrica.createEntityManager();
+        CriteriaBuilder criteriaBuilder = entityManager.getCriteriaBuilder();
+        CriteriaQuery<Plantel> criteriaQuery = criteriaBuilder.createQuery(Plantel.class);
+        List<Plantel> planteles = entityManager.createQuery(criteriaQuery).getResultList();
+        entityManager.close();
+        fabrica.close();
+        return planteles;
+    }
+
+    @Override
+    public Plantel BuscarPlantelID(long id) {
+        EntityManagerFactory fabrica = Persistence.createEntityManagerFactory("ConexionJPA");
+        EntityManager entityManager = fabrica.createEntityManager();
+        CriteriaBuilder criteriaBuilder = entityManager.getCriteriaBuilder();
+        CriteriaQuery<Plantel> criteriaQuery = criteriaBuilder.createQuery(Plantel.class);
+        Root<Plantel> root = criteriaQuery.from(Plantel.class);
+        criteriaQuery.select(root)
+                     .where(criteriaBuilder.equal(root.get("id"), id));
+        TypedQuery<Plantel> typedQuery = entityManager.createQuery(criteriaQuery);
+        Plantel plantel = typedQuery.getSingleResult();
+        entityManager.close();
+        fabrica.close();
+        return plantel;
+    }
+
+    @Override
+    public List<Centro> ListaCentroPlantel(Plantel plantel) {
+       EntityManagerFactory fabrica = Persistence.createEntityManagerFactory("ConexionJPA");
+        EntityManager entityManager = fabrica.createEntityManager();
+        CriteriaBuilder criteriaBuilder = entityManager.getCriteriaBuilder();
+        CriteriaQuery<Centro> criteriaQuery = criteriaBuilder.createQuery(Centro.class);
+        
+        Root<Centro> root = criteriaQuery.from(Centro.class);
+        criteriaQuery.select(root)
+                   .where(criteriaBuilder.equal(root.get("idPlantel"), plantel.getId()));
+        
+        List<Centro> centros = entityManager.createQuery(criteriaQuery).getResultList();
+        entityManager.close();
+        fabrica.close();
+        return centros;
     }
     
 }
